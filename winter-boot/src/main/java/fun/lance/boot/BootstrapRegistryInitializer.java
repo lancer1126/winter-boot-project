@@ -1,4 +1,4 @@
-package fun.lance;
+package fun.lance.boot;
 
 public interface BootstrapRegistryInitializer {
     /**

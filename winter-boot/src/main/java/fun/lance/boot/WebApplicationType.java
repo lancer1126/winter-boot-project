@@ -1,4 +1,4 @@
-package fun.lance;
+package fun.lance.boot;
 
 import org.springframework.util.ClassUtils;
 
@@ -17,8 +17,8 @@ public enum WebApplicationType {
     private static final String JERSEY_INDICATOR_CLASS = "org.glassfish.jersey.servlet.ServletContainer";
 
     /**
-     * 从classpath中推断应该使用哪种web类型
-     * 一般情况下使用SERVLET类型
+     * 从classpath中引入的类推断应该使用哪种web类型
+     * 一般情况下都会引入spring-boot-starter-web SERVLET类型
      */
     static WebApplicationType deduceFromClasspath() {
         if (ClassUtils.isPresent(WEBFLUX_INDICATOR_CLASS, null)

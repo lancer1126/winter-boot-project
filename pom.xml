@@ -5,12 +5,18 @@
   <groupId>fun.lance</groupId>
   <artifactId>winter-boot-project</artifactId>
   <version>1.0</version>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <name>winter-boot-project</name>
+  <modules>
+    <module>winter-app</module>
+    <module>winter-boot</module>
+  </modules>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
 </project>
