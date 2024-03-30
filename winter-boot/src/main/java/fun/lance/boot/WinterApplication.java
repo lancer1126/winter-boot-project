@@ -5,6 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.core.metrics.ApplicationStartup;
@@ -20,8 +21,8 @@ public class WinterApplication {
     static final WinterApplicationShutdownHook shutdownHook = new WinterApplicationShutdownHook();
 
     private static final String SYSTEM_PROPERTY_JAVA_AWT_HEADLESS = "java.awt.headless";
-    private static final Log logger = LogFactory.getLog(WinterApplication.class);
     private static final ThreadLocal<WinterApplicationHook> applicationHook = new ThreadLocal<>();
+    private static final Log logger = LogFactory.getLog(WinterApplication.class);
 
     private final Set<Class<?>> primarySources;
     private final List<BootstrapRegistryInitializer> bootstrapRegistryInitializers;
@@ -30,9 +31,11 @@ public class WinterApplication {
     private boolean headless = true;
 
     private Class<?> mainApplicationClass;
-    private ResourceLoader resourceLoader;
     private WebApplicationType webApplicationType;
+    private ResourceLoader resourceLoader;
+    private ConfigurableEnvironment environment;
     private ApplicationStartup applicationStartup = ApplicationStartup.DEFAULT;
+    private ApplicationContextFactory applicationContextFactory = ApplicationContextFactory.DEFAULT;
 
     private List<ApplicationContextInitializer<?>> initializers;
     private List<ApplicationListener<?>> listeners;
@@ -65,6 +68,14 @@ public class WinterApplication {
         ConfigurableApplicationContext context = null;
         configureHeadlessProperty();
         WinterApplicationRunListeners runListeners = getRunListeners(args);
+        runListeners.starting(bootstrapContext, this.mainApplicationClass);
+
+        try {
+            ApplicationArguments applicationArguments = new DefaultApplicationArguments(args);
+            ConfigurableEnvironment environment = prepareEnvironment(runListeners, bootstrapContext, applicationArguments);
+        } catch (Throwable ex) {
+
+        }
 
         return context;
     }
@@ -140,6 +151,25 @@ public class WinterApplication {
             runListeners.add(hookListener);
         }
         return new WinterApplicationRunListeners(logger, runListeners, this.applicationStartup);
+    }
+
+    private ConfigurableEnvironment prepareEnvironment(WinterApplicationRunListeners listeners,
+                                                       DefaultBootstrapContext bootstrapContext,
+                                                       ApplicationArguments applicationArguments) {
+        // 创建 ConfigurableEnvironment
+        ConfigurableEnvironment environment = getOrCreateEnvironment();
+        return null;
+    }
+
+    private ConfigurableEnvironment getOrCreateEnvironment() {
+        if (this.environment != null) {
+            return this.environment;
+        }
+        ConfigurableEnvironment environment = this.applicationContextFactory.createEnvironment(this.webApplicationType);
+        if (environment == null && this.applicationContextFactory != ApplicationContextFactory.DEFAULT) {
+            environment = ApplicationContextFactory.DEFAULT.createEnvironment(this.webApplicationType);
+        }
+        return (environment != null) ? environment : new ApplicationEnvironment();
     }
 
     private <T> List<T> getSpringFactoriesInstances(Class<T> type) {

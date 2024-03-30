@@ -1,2 +1,8 @@
+# Run Listeners
 fun.lance.boot.WinterApplicationRunListener=\
 fun.lance.boot.context.event.EventPublishingRunListener
+
+# Application Context Factories
+fun.lance.boot.ApplicationContextFactory=\
+fun.lance.boot.web.reactive.context.ReactiveWebServerApplicationContextFactory,\
+fun.lance.boot.web.servlet.context.ServletWebServerApplicationContextFactory
