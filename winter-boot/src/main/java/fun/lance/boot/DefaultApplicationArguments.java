@@ -16,6 +16,11 @@ public class DefaultApplicationArguments implements ApplicationArguments {
         this.args = args;
     }
 
+    @Override
+    public String[] getSourceArgs() {
+        return this.args;
+    }
+
     private static class Source extends SimpleCommandLinePropertySource {
         Source(String[] args) {super(args);}
 
