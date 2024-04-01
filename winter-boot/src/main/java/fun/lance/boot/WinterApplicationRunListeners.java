@@ -1,6 +1,7 @@
 package fun.lance.boot;
 
 import org.apache.commons.logging.Log;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.metrics.ApplicationStartup;
 import org.springframework.core.metrics.StartupStep;
 
@@ -26,6 +27,15 @@ public class WinterApplicationRunListeners {
                         step.tag("mainApplicationClass", mainApplicationClass.getName());
                     }
                 });
+    }
+
+    void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
+        doWithListeners("winter.boot.application.environment-prepared",
+                (listener) -> listener.environmentPrepared(bootstrapContext, environment));
+    }
+
+    private void doWithListeners(String stepName, Consumer<WinterApplicationRunListener> listenerAction) {
+        doWithListeners(stepName, listenerAction, null);
     }
 
     private void doWithListeners(String stepName, Consumer<WinterApplicationRunListener> listenerAction,

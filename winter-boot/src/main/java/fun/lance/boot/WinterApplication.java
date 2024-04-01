@@ -1,11 +1,13 @@
 package fun.lance.boot;
 
+import fun.lance.boot.context.properties.source.ConfigurationPropertySources;
 import fun.lance.boot.convert.ApplicationConversionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.env.*;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.io.support.SpringFactoriesLoader;
@@ -64,6 +66,20 @@ public class WinterApplication {
     }
 
     /**
+     * 外部程序调用的主入口
+     */
+    public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
+        return run(new Class[]{primarySource}, args);
+    }
+
+    /**
+     * 初始化一个WinterApplication实例后调用实例的run方法
+     */
+    public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
+        return new WinterApplication(primarySources).run(args);
+    }
+
+    /**
      * 核心方法
      */
     public ConfigurableApplicationContext run(String... args) {
@@ -89,20 +105,6 @@ public class WinterApplication {
     }
 
     /**
-     * 外部程序调用的主入口
-     */
-    public static ConfigurableApplicationContext run(Class<?> primarySource, String... args) {
-        return run(new Class[]{primarySource}, args);
-    }
-
-    /**
-     * 初始化一个WinterApplication实例后调用实例的run方法
-     */
-    public static ConfigurableApplicationContext run(Class<?>[] primarySources, String[] args) {
-        return new WinterApplication(primarySources).run(args);
-    }
-
-    /**
      * 获取ClassLoader
      * 初始化为Thread.currentThread().getContextClassLoader();
      */
@@ -125,6 +127,13 @@ public class WinterApplication {
      */
     public void setListeners(Collection<? extends ApplicationListener<?>> listeners) {
         this.listeners = new ArrayList<>(listeners);
+    }
+
+    /**
+     * 获取已初始化的listener
+     */
+    public Set<ApplicationListener<?>> getListeners() {
+        return asUnmodifiableOrderedSet(this.listeners);
     }
 
     /**
@@ -168,6 +177,15 @@ public class WinterApplication {
      * processing through the {@code spring.profiles.active} property.
      */
     protected void configureProfiles(ConfigurableEnvironment environment, String[] args) {
+    }
+
+    /**
+     * 将原集合转换为一个不可修改的集合
+     */
+    private static <E> Set<E> asUnmodifiableOrderedSet(Collection<E> elements) {
+        List<E> list = new ArrayList<>(elements);
+        list.sort(AnnotationAwareOrderComparator.INSTANCE);
+        return new LinkedHashSet<>(list);
     }
 
     /**
@@ -232,6 +250,8 @@ public class WinterApplication {
         // 创建 ConfigurableEnvironment (ApplicationServletEnvironment)
         ConfigurableEnvironment environment = getOrCreateEnvironment();
         configureEnvironment(environment, applicationArguments.getSourceArgs());
+        ConfigurationPropertySources.attach(environment);
+        listeners.environmentPrepared(bootstrapContext, environment);
 
         // todo
         return null;
