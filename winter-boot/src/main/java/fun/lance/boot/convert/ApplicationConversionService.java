@@ -100,4 +100,18 @@ public class ApplicationConversionService extends FormattingConversionService {
         registry.addConverter(new DelimitedStringToArrayConverter(service));
         registry.addConverter(new DelimitedStringToCollectionConverter(service));
     }
+
+    public static ConversionService getSharedInstance() {
+        ApplicationConversionService sharedInstance = ApplicationConversionService.sharedInstance;
+        if (sharedInstance == null) {
+            synchronized (ApplicationConversionService.class) {
+                sharedInstance = ApplicationConversionService.sharedInstance;
+                if (sharedInstance == null) {
+                    sharedInstance = new ApplicationConversionService(null, true);
+                    ApplicationConversionService.sharedInstance = sharedInstance;
+                }
+            }
+        }
+        return sharedInstance;
+    }
 }

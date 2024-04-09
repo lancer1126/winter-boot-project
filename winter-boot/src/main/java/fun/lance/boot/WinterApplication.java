@@ -1,5 +1,6 @@
 package fun.lance.boot;
 
+import fun.lance.boot.context.properties.bind.Binder;
 import fun.lance.boot.context.properties.source.ConfigurationPropertySources;
 import fun.lance.boot.convert.ApplicationConversionService;
 import org.apache.commons.logging.Log;
@@ -180,6 +181,17 @@ public class WinterApplication {
     }
 
     /**
+     * 将environment绑定到WinterApplication中
+     */
+    protected void bindToWinterApplication(ConfigurableEnvironment environment) {
+        try {
+
+        } catch (Exception ex) {
+            throw new IllegalStateException("Cannot bind to WinterApplication", ex);
+        }
+    }
+
+    /**
      * 将原集合转换为一个不可修改的集合
      */
     private static <E> Set<E> asUnmodifiableOrderedSet(Collection<E> elements) {
@@ -252,6 +264,9 @@ public class WinterApplication {
         configureEnvironment(environment, applicationArguments.getSourceArgs());
         ConfigurationPropertySources.attach(environment);
         listeners.environmentPrepared(bootstrapContext, environment);
+        DefaultPropertiesPropertySource.moveToEnd(environment);
+        Assert.state(!environment.containsProperty("spring.main.environment-prefix"),
+                "Environment prefix cannot be set via properties.");
 
         // todo
         return null;

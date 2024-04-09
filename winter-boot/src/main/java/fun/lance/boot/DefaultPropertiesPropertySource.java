@@ -1,5 +1,6 @@
 package fun.lance.boot;
 
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
@@ -28,6 +29,17 @@ public class DefaultPropertiesPropertySource extends MapPropertySource {
                 resultingSource.putAll(source);
                 sources.addLast(propertySource);
             }
+        }
+    }
+
+    public static void moveToEnd(ConfigurableEnvironment environment) {
+        moveToEnd(environment.getPropertySources());
+    }
+
+    public static void moveToEnd(MutablePropertySources propertySources) {
+        PropertySource<?> propertySource = propertySources.remove(NAME);
+        if (propertySource != null) {
+            propertySources.addLast(propertySource);
         }
     }
 

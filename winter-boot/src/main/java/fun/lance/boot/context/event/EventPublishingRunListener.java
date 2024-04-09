@@ -29,11 +29,12 @@ public class EventPublishingRunListener implements WinterApplicationRunListener,
 
     @Override
     public void environmentPrepared(ConfigurableBootstrapContext bootstrapContext, ConfigurableEnvironment environment) {
-
+        multicastInitialEvent(new ApplicationEnvironmentPreparedEvent(bootstrapContext, this.application, this.args, environment));
     }
 
     private void multicastInitialEvent(ApplicationEvent event) {
-
+        refreshApplicationListeners();
+        this.initialMulticaster.multicastEvent(event);
     }
 
     private void refreshApplicationListeners() {

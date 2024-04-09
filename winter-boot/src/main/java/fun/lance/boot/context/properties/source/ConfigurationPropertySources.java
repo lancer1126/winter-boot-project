@@ -20,6 +20,20 @@ public final class ConfigurationPropertySources {
         sources.addFirst(attached);
     }
 
+    public static Iterable<ConfigurationPropertySource> get(Environment environment) {
+        Assert.isInstanceOf(ConfigurableEnvironment.class, environment);
+        MutablePropertySources sources = ((ConfigurableEnvironment) environment).getPropertySources();
+        ConfigurationPropertySourcesPropertySource attached = (ConfigurationPropertySourcesPropertySource) sources.get(ATTACHED_PROPERTY_SOURCE_NAME);
+        if (attached == null) {
+            return from(sources);
+        }
+        return attached.getSource();
+    }
+
+    public static Iterable<ConfigurationPropertySource> from(Iterable<PropertySource<?>> sources) {
+        return new WinterConfigurationPropertySources(sources);
+    }
+
     static PropertySource<?> getAttached(MutablePropertySources sources) {
         return (sources != null) ? sources.get(ATTACHED_PROPERTY_SOURCE_NAME) : null;
     }
